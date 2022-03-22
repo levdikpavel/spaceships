@@ -12,10 +12,23 @@ type Move struct {
 	m Movable
 }
 
-func (m *Move) Execute() {
-	position := m.m.GetPosition()
-	velocity := m.m.GetVelocity()
-	m.m.SetPosition(vector.Add(position, velocity))
+func (m *Move) Execute() error {
+	position, err := m.m.GetPosition()
+	if err != nil {
+		return err
+	}
+
+	velocity, err := m.m.GetVelocity()
+	if err != nil {
+		return err
+	}
+
+	err = m.m.SetPosition(vector.Add(position, velocity))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewRotate(r Rotatable) *Rotate {
@@ -28,10 +41,27 @@ type Rotate struct {
 	r Rotatable
 }
 
-func (r *Rotate) Execute() {
-	direction := r.r.GetDirection()
-	angularVelocity := r.r.GetAngularVelocity()
-	n := r.r.GetDirectionsNumber()
+func (r *Rotate) Execute() error {
+	direction, err := r.r.GetDirection()
+	if err != nil {
+		return err
+	}
+
+	angularVelocity, err := r.r.GetAngularVelocity()
+	if err != nil {
+		return err
+	}
+
+	n, err := r.r.GetDirectionsNumber()
+	if err != nil {
+		return err
+	}
+
 	directionNew := direction + angularVelocity
-	r.r.SetDirection(directionNew % n)
+	err = r.r.SetDirection(directionNew % n)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
