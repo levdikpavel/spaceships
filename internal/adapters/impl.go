@@ -1,6 +1,6 @@
 package adapters
 
-import "github.com/atedja/go-vector"
+import "modules/internal/vector"
 
 func NewMove(m Movable) *Move {
 	return &Move{
