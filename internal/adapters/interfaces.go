@@ -3,14 +3,14 @@ package adapters
 import "modules/internal/vector"
 
 type Movable interface {
-	GetPosition() vector.Vector
-	GetVelocity() vector.Vector
-	SetPosition(vector.Vector)
+	GetPosition() (vector.Vector, error)
+	GetVelocity() (vector.Vector, error)
+	SetPosition(vector.Vector) error
 }
 
 type Rotatable interface {
-	GetDirection() int
-	GetAngularVelocity() int
-	SetDirection(direction int)
-	GetDirectionsNumber() int
+	GetDirection() (int, error)
+	GetAngularVelocity() (int, error)
+	SetDirection(direction int) error
+	GetDirectionsNumber() (int, error)
 }
