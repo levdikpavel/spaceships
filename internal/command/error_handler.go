@@ -38,7 +38,8 @@ func (h *RepeatErrorHandler) Handle(command Command, err error) {
 	}
 
 	if repeatCommand.attempt >= h.attempts {
-		h.defaultHandler(command, err)
+		h.defaultHandler(repeatCommand.command, err)
+		return
 	}
 
 	repeatCommand.attempt += 1

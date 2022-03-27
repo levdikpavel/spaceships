@@ -1,16 +1,25 @@
 package command
 
 import (
+	"fmt"
 	"log"
 )
+
+type LogFunc func(string)
 
 type LogCommand struct {
 	command Command
 	err     error
+	logFunc LogFunc
+}
+
+func StdLogFunc(message string) {
+	log.Println(message)
 }
 
 func (c LogCommand) Execute() error {
-	log.Println(getType(c.command), "got error", c.err)
+	message := fmt.Sprintf("%s got error: '%s'", getType(c.command), c.err)
+	c.logFunc(message)
 	return nil
 }
 
