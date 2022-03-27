@@ -47,7 +47,7 @@ func (s *ErrorHandlerSuite) TestRepeat() {
 
 	repeatCommand := RepeatCommand{
 		command: s.command,
-		attempt: 0,
+		attempt: 1,
 	}
 	s.queue.On("Put", repeatCommand).Return()
 
@@ -68,7 +68,7 @@ func (s *ErrorHandlerSuite) TestRepeatDouble() {
 
 	repeatCommand := RepeatCommand{
 		command: s.command,
-		attempt: 0,
+		attempt: 1,
 	}
 	s.queue.On("Put", repeatCommand).Return()
 
@@ -79,8 +79,42 @@ func (s *ErrorHandlerSuite) TestRepeatDouble() {
 		err:     s.err,
 	}
 	s.queue.On("Put", logCommand).Return()
-	repeatCommand.attempt = 1
+	//repeatCommand.attempt = 1
 	h.Handle(repeatCommand, s.err)
+
+	s.queue.AssertExpectations(s.T())
+}
+
+func (s *ErrorHandlerSuite) TestRepeatTriple() {
+	logHandler := LogErrorHandler{
+		queue: &s.queue,
+	}
+
+	h := RepeatErrorHandler{
+		queue:          &s.queue,
+		attempts:       2,
+		defaultHandler: logHandler.Handle,
+	}
+
+	repeatCommand1 := RepeatCommand{
+		command: s.command,
+		attempt: 1,
+	}
+	s.queue.On("Put", repeatCommand1).Return()
+	h.Handle(s.command, s.err)
+
+	repeatCommand2 := repeatCommand1
+	repeatCommand2.attempt = 2
+	s.queue.On("Put", repeatCommand2).Return()
+	h.Handle(repeatCommand1, s.err)
+
+
+	logCommand := LogCommand{
+		command: s.command,
+		err:     s.err,
+	}
+	s.queue.On("Put", logCommand).Return()
+	h.Handle(repeatCommand2, s.err)
 
 	s.queue.AssertExpectations(s.T())
 }

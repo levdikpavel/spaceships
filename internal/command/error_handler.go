@@ -1,14 +1,5 @@
 package command
 
-type CompositeErrorHandler struct {
-	handlers       map[string]ErrorHandler
-	defaultHandler ErrorHandler
-}
-
-func (h *CompositeErrorHandler) Handle(command Command, err error) {
-
-}
-
 type LogErrorHandler struct {
 	queue Queue
 }
@@ -32,7 +23,7 @@ func (h *RepeatErrorHandler) Handle(command Command, err error) {
 	if !ok {
 		h.queue.Put(RepeatCommand{
 			command: command,
-			attempt: 0,
+			attempt: 1,
 		})
 		return
 	}
