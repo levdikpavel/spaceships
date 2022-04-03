@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	inputFile string
+	inputFile  string
 	outputFile string
 	sortMethod string
 )
@@ -71,7 +71,7 @@ func dumpResult(nums []int) (err error) {
 		return
 	}
 
-	_, err = f.WriteString(sortMethod)
+	_, err = f.WriteString(sortMethod + "\n")
 	for _, num := range nums {
 		numStr := strconv.Itoa(num)
 		_, err = f.WriteString(numStr + "\n")
