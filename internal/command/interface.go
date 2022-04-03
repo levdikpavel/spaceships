@@ -19,6 +19,10 @@ type Movable interface {
 	SetPosition(vector.Vector) error
 }
 
+type Accelerating interface {
+	SetVelocity(vector.Vector) error
+}
+
 type Rotatable interface {
 	GetDirection() (int, error)
 	GetAngularVelocity() (int, error)
@@ -35,4 +39,10 @@ type FuelBurnable interface {
 type MovableWithFuel interface {
 	Movable
 	FuelBurnable
+}
+
+type MovableRotatable interface {
+	Movable
+	Rotatable
+	Accelerating
 }

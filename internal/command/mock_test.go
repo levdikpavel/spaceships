@@ -55,6 +55,15 @@ func (m *MovableMock) SetPosition(v vector.Vector) error {
 	return args.Error(0)
 }
 
+type AcceleratingMock struct {
+	mock.Mock
+}
+
+func (m *AcceleratingMock) SetVelocity(v vector.Vector) error {
+	args := m.Called(v)
+	return args.Error(0)
+}
+
 type RotatableMock struct {
 	mock.Mock
 }
@@ -101,4 +110,10 @@ func (m *FuelBurnableMock) SetFuel(value int) error {
 type MovableWithFuelMock struct {
 	MovableMock
 	FuelBurnableMock
+}
+
+type RotatableMovableMock struct {
+	RotatableMock
+	MovableMock
+	AcceleratingMock
 }

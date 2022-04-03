@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"log"
+	"math"
 
 	"modules/internal/vector"
 )
@@ -89,8 +90,61 @@ func (r *RotateCommand) Execute() error {
 		return err
 	}
 
-	directionNew := direction + angularVelocity
-	err = r.r.SetDirection(directionNew % n)
+	directionNew := (direction + angularVelocity) % n
+	err = r.r.SetDirection(directionNew)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewTurnVelocityCommand(object MovableRotatable) Command {
+	return &TurnVelocityCommand{
+		object: object,
+	}
+}
+
+type TurnVelocityCommand struct {
+	object MovableRotatable
+}
+
+func (c *TurnVelocityCommand) Execute() error {
+	velocity, err := c.object.GetVelocity()
+	if err != nil {
+		return err
+	}
+
+	if len(velocity) != 2 {
+		return ErrUnsupportedDimension
+	}
+
+	direction, err := c.object.GetDirection()
+	if err != nil {
+		return err
+	}
+
+	angularVelocity, err := c.object.GetAngularVelocity()
+	if err != nil {
+		return err
+	}
+
+	n, err := c.object.GetDirectionsNumber()
+	if err != nil {
+		return err
+	}
+
+	directionNew := (direction + angularVelocity) % n
+	alpha := float64(directionNew) / float64(n) * 2 * math.Pi
+
+	vx, vy := velocity[0], velocity[1]
+	v := math.Sqrt(float64(vx*vx) + float64(vy*vy))
+
+	vx = int(v * math.Cos(alpha))
+	vy = int(v * math.Sin(alpha))
+	velocity = vector.New([]int{vx, vy})
+
+	err = c.object.SetVelocity(velocity)
 	if err != nil {
 		return err
 	}
@@ -180,4 +234,16 @@ func NewMoveWithFuelCommand(object MovableWithFuel) Command {
 	burnCommand := NewBurnFuelCommand(object)
 	result := NewMacroCommand(checkCommand, moveCommand, burnCommand)
 	return result
+}
+
+func NewRotateWithVelocityCommand(object Rotatable) Command {
+	rotateCommand := NewRotateCommand(object)
+
+	movableRotatable, isMovableRotatable := object.(MovableRotatable)
+	if isMovableRotatable {
+		turnCommand := NewTurnVelocityCommand(movableRotatable)
+		return NewMacroCommand(rotateCommand, turnCommand)
+	}
+
+	return rotateCommand
 }

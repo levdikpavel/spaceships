@@ -400,3 +400,138 @@ func (s *MoveWithFuelTestSuite) TestBurnError() {
 	s.Require().Error(err)
 	s.Require().ErrorIs(err, errSomeError)
 }
+
+func TestTurnVelocity(t *testing.T) {
+	suite.Run(t, new(TurnVelocityTestSuite))
+}
+
+type TurnVelocityTestSuite struct {
+	suite.Suite
+
+	mock             RotatableMovableMock
+	velocity         vector.Vector
+	velocity3D       vector.Vector
+	velocityNew      vector.Vector
+	nilVector        vector.Vector
+	direction        int
+	angularVelocity  int
+	directionsNumber int
+}
+
+func (s *TurnVelocityTestSuite) SetupTest() {
+	s.mock = RotatableMovableMock{}
+	s.velocity = vector.New([]int{100, 10})
+	s.velocity3D = vector.New([]int{100, 10, 20})
+	s.direction = 6
+	s.angularVelocity = 4
+	s.directionsNumber = 360
+	s.velocityNew = vector.New([]int{98, 17})
+}
+
+func (s *TurnVelocityTestSuite) TearDownTest() {
+	s.mock.RotatableMock.AssertExpectations(s.T())
+	s.mock.MovableMock.AssertExpectations(s.T())
+	s.mock.AcceleratingMock.AssertExpectations(s.T())
+}
+
+func (s *TurnVelocityTestSuite) TestSuccess() {
+	s.mock.MovableMock.On("GetVelocity").Return(s.velocity, nil)
+	s.mock.RotatableMock.On("GetDirection").Return(s.direction, nil).
+		On("GetAngularVelocity").Return(s.angularVelocity, nil).
+		On("GetDirectionsNumber").Return(s.directionsNumber, nil)
+	s.mock.AcceleratingMock.On("SetVelocity", s.velocityNew).Return(nil)
+	command := NewTurnVelocityCommand(&s.mock)
+	err := command.Execute()
+	s.Require().NoError(err)
+}
+
+func (s *TurnVelocityTestSuite) TestGetVelocityError() {
+	s.mock.MovableMock.On("GetVelocity").Return(s.nilVector, errSomeError)
+	command := NewTurnVelocityCommand(&s.mock)
+	err := command.Execute()
+	s.Require().Error(err)
+	s.Require().ErrorIs(err, errSomeError)
+}
+
+func (s *TurnVelocityTestSuite) TestVelocity3D() {
+	s.mock.MovableMock.On("GetVelocity").Return(s.velocity3D, nil)
+	command := NewTurnVelocityCommand(&s.mock)
+	err := command.Execute()
+	s.Require().Error(err)
+	s.Require().ErrorIs(err, ErrUnsupportedDimension)
+}
+
+func (s *TurnVelocityTestSuite) TestGetDirectionError() {
+	s.mock.MovableMock.On("GetVelocity").Return(s.velocity, nil)
+	s.mock.RotatableMock.On("GetDirection").Return(0, errSomeError)
+	command := NewTurnVelocityCommand(&s.mock)
+	err := command.Execute()
+	s.Require().Error(err)
+	s.Require().ErrorIs(err, errSomeError)
+}
+
+func (s *TurnVelocityTestSuite) TestSetVelocityError() {
+	s.mock.MovableMock.On("GetVelocity").Return(s.velocity, nil)
+	s.mock.RotatableMock.On("GetDirection").Return(s.direction, nil).
+		On("GetAngularVelocity").Return(s.angularVelocity, nil).
+		On("GetDirectionsNumber").Return(s.directionsNumber, nil)
+	s.mock.AcceleratingMock.On("SetVelocity", s.velocityNew).Return(errSomeError)
+	command := NewTurnVelocityCommand(&s.mock)
+	err := command.Execute()
+	s.Require().Error(err)
+	s.Require().ErrorIs(err, errSomeError)
+}
+
+func TestRotateWithVelocity(t *testing.T) {
+	suite.Run(t, new(RotateWithVelocityTestSuite))
+}
+
+type RotateWithVelocityTestSuite struct {
+	suite.Suite
+
+	mock             RotatableMovableMock
+	velocity         vector.Vector
+	velocityNew      vector.Vector
+	direction        int
+	angularVelocity  int
+	directionsNumber int
+	directionNew     int
+}
+
+func (s *RotateWithVelocityTestSuite) SetupTest() {
+	s.mock = RotatableMovableMock{}
+	s.velocity = vector.New([]int{100, 10})
+	s.direction = 6
+	s.angularVelocity = 4
+	s.directionsNumber = 360
+	s.directionNew = 10
+	s.velocityNew = vector.New([]int{98, 17})
+}
+
+func (s *RotateWithVelocityTestSuite) TearDownTest() {
+	s.mock.RotatableMock.AssertExpectations(s.T())
+	s.mock.MovableMock.AssertExpectations(s.T())
+	s.mock.AcceleratingMock.AssertExpectations(s.T())
+}
+
+func (s *RotateWithVelocityTestSuite) TestSuccess() {
+	s.mock.MovableMock.On("GetVelocity").Return(s.velocity, nil)
+	s.mock.RotatableMock.On("GetDirection").Return(s.direction, nil).
+		On("GetAngularVelocity").Return(s.angularVelocity, nil).
+		On("GetDirectionsNumber").Return(s.directionsNumber, nil).
+		On("SetDirection", s.directionNew).Return(nil)
+	s.mock.AcceleratingMock.On("SetVelocity", s.velocityNew).Return(nil)
+	command := NewRotateWithVelocityCommand(&s.mock)
+	err := command.Execute()
+	s.Require().NoError(err)
+}
+
+func (s *RotateWithVelocityTestSuite) TestSuccessOnlyRotate() {
+	s.mock.RotatableMock.On("GetDirection").Return(s.direction, nil).
+		On("GetAngularVelocity").Return(s.angularVelocity, nil).
+		On("GetDirectionsNumber").Return(s.directionsNumber, nil).
+		On("SetDirection", s.directionNew).Return(nil)
+	command := NewRotateWithVelocityCommand(&s.mock.RotatableMock)
+	err := command.Execute()
+	s.Require().NoError(err)
+}
