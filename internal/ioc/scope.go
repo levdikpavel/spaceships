@@ -6,17 +6,17 @@ import (
 
 	"github.com/timandy/routine"
 
-	"modules/internal/command"
+	"modules/internal/core"
 )
 
-type createCommand func(params ...interface{}) command.Command
+type createCommand func(params ...interface{}) core.Command
 
 type scope struct {
 	commandRegistry sync.Map
 	parent          *scope
 }
 
-func (s *scope) resolve(key string, params ...interface{}) command.Command {
+func (s *scope) resolve(key string, params ...interface{}) core.Command {
 	if s == nil {
 		return nil
 	}
@@ -58,7 +58,7 @@ type scopesRegistry struct {
 func createScope(parent *scope) *scope {
 	result := &scope{parent: parent}
 
-	result.commandRegistry.Store("IoC.Register", func(params ...interface{}) command.Command {
+	result.commandRegistry.Store("IoC.Register", func(params ...interface{}) core.Command {
 		name := params[0].(string)
 		create := params[1].(createCommand)
 		return &registerCommand{
@@ -105,7 +105,7 @@ func getCurrentScope(gid int64) *scope {
 	return scopes.defaultScope
 }
 
-func Resolve(key string, params ...interface{}) command.Command {
+func Resolve(key string, params ...interface{}) core.Command {
 	gid := routine.Goid()
 
 	switch key {
