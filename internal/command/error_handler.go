@@ -1,10 +1,12 @@
 package command
 
+import "modules/internal/core"
+
 type LogErrorHandler struct {
-	queue Queue
+	queue core.Queue
 }
 
-func (h *LogErrorHandler) Handle(command Command, err error) {
+func (h *LogErrorHandler) Handle(command core.Command, err error) {
 	logCommand := LogCommand{
 		command: command,
 		err:     err,
@@ -13,12 +15,12 @@ func (h *LogErrorHandler) Handle(command Command, err error) {
 }
 
 type RepeatErrorHandler struct {
-	queue          Queue
+	queue          core.Queue
 	attempts       int
-	defaultHandler ErrorHandler
+	defaultHandler core.ErrorHandler
 }
 
-func (h *RepeatErrorHandler) Handle(command Command, err error) {
+func (h *RepeatErrorHandler) Handle(command core.Command, err error) {
 	repeatCommand, ok := command.(RepeatCommand)
 	if !ok {
 		h.queue.Put(RepeatCommand{

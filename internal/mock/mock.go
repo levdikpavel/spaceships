@@ -1,8 +1,9 @@
-package command
+package mock
 
 import (
 	"github.com/stretchr/testify/mock"
 
+	"modules/internal/core"
 	"modules/internal/vector"
 )
 
@@ -10,12 +11,12 @@ type QueueMock struct {
 	mock.Mock
 }
 
-func (q *QueueMock) Get() (Command, bool) {
+func (q *QueueMock) Get() (core.Command, bool) {
 	args := q.Called()
-	return args.Get(0).(Command), args.Bool(1)
+	return args.Get(0).(core.Command), args.Bool(1)
 }
 
-func (q *QueueMock) Put(command Command) {
+func (q *QueueMock) Put(command core.Command) {
 	q.Called(command)
 }
 
