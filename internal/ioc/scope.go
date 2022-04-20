@@ -9,10 +9,8 @@ import (
 	"modules/internal/core"
 )
 
-type createCommand func(params ...interface{}) core.Command
-
 type scope struct {
-	commandRegistry sync.Map
+	commandRegistry *sync.Map
 	parent          *scope
 }
 
@@ -26,14 +24,14 @@ func (s *scope) resolve(key string, params ...interface{}) core.Command {
 		return s.parent.resolve(key, params...)
 	}
 
-	create := val.(createCommand)
+	create := val.(func (params ...interface{}) core.Command)
 	return create(params...)
 }
 
 type registerCommand struct {
 	scope  *scope
 	name   string
-	create createCommand
+	create func (params ...interface{}) core.Command
 }
 
 func (c *registerCommand) Execute() error {
@@ -56,17 +54,21 @@ type scopesRegistry struct {
 }
 
 func createScope(parent *scope) *scope {
-	result := &scope{parent: parent}
+	result := &scope{
+		commandRegistry: &sync.Map{},
+		parent:          parent,
+	}
 
-	result.commandRegistry.Store("IoC.Register", func(params ...interface{}) core.Command {
+	create := func(params ...interface{}) core.Command {
 		name := params[0].(string)
-		create := params[1].(createCommand)
+		create := params[1].(func(params ...interface{}) core.Command)
 		return &registerCommand{
 			scope:  result,
 			name:   name,
 			create: create,
 		}
-	})
+	}
+	result.commandRegistry.Store("IoC.Register", create)
 
 	return result
 }

@@ -34,7 +34,7 @@ func (s *CommandSuite) TestLog() {
 
 	err := command.Execute()
 	s.Require().NoError(err)
-	s.Require().Equal("CommandMock got error: 'some error'", loggerMock.message)
+	s.Require().Equal("CommandMock got error: 'some error'", loggerMock.Message)
 }
 
 func (s *CommandSuite) TestRepeat() {

@@ -24,17 +24,24 @@ type CommandMock struct {
 	mock.Mock
 }
 
-func (c *CommandMock) Execute() error {
+func (c *CommandMock) Execute() (err error) {
 	args := c.Called()
-	return args.Error(0)
+
+	if execute, ok := args.Get(0).(func() error); ok {
+		err = execute()
+	} else {
+		err = args.Error(0)
+	}
+
+	return err
 }
 
 type LoggerMock struct {
-	message string
+	Message string
 }
 
 func (l *LoggerMock) Log(message string) {
-	l.message = message
+	l.Message = message
 }
 
 type MovableMock struct {
