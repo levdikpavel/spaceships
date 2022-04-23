@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	errSomeError = fmt.Errorf("some error")	
+	errSomeError = fmt.Errorf("some error")
 )
 
 func TestCommand(t *testing.T) {
@@ -34,7 +34,7 @@ func (s *CommandSuite) TestLog() {
 
 	err := command.Execute()
 	s.Require().NoError(err)
-	s.Require().Equal("CommandMock got error: 'some error'", loggerMock.message)
+	s.Require().Equal("CommandMock got error: 'some error'", loggerMock.Message)
 }
 
 func (s *CommandSuite) TestRepeat() {
@@ -48,7 +48,6 @@ func (s *CommandSuite) TestRepeat() {
 	s.Require().Equal(errSomeError, err)
 	s.command.AssertExpectations(s.T())
 }
-
 
 func TestMove(t *testing.T) {
 	suite.Run(t, new(MoveTestSuite))
@@ -339,8 +338,8 @@ func TestMoveWithFuel(t *testing.T) {
 type MoveWithFuelTestSuite struct {
 	suite.Suite
 
-	mock     mock.MovableWithFuelMock
-	position vector.Vector
+	mock        mock.MovableWithFuelMock
+	position    vector.Vector
 	velocity    vector.Vector
 	positionNew vector.Vector
 	nilVector   vector.Vector
@@ -409,8 +408,8 @@ func TestTurnVelocity(t *testing.T) {
 type TurnVelocityTestSuite struct {
 	suite.Suite
 
-	mock     mock.RotatableMovableMock
-	velocity vector.Vector
+	mock             mock.RotatableMovableMock
+	velocity         vector.Vector
 	velocity3D       vector.Vector
 	velocityNew      vector.Vector
 	nilVector        vector.Vector
@@ -490,8 +489,8 @@ func TestRotateWithVelocity(t *testing.T) {
 type RotateWithVelocityTestSuite struct {
 	suite.Suite
 
-	mock     mock.RotatableMovableMock
-	velocity vector.Vector
+	mock             mock.RotatableMovableMock
+	velocity         vector.Vector
 	velocityNew      vector.Vector
 	direction        int
 	angularVelocity  int

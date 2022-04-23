@@ -30,11 +30,11 @@ func (c *CommandMock) Execute() error {
 }
 
 type LoggerMock struct {
-	message string
+	Message string
 }
 
 func (l *LoggerMock) Log(message string) {
-	l.message = message
+	l.Message = message
 }
 
 type MovableMock struct {

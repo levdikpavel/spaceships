@@ -110,7 +110,6 @@ func (s *ErrorHandlerSuite) TestRepeatTriple() {
 	s.queue.On("Put", repeatCommand2).Return()
 	h.Handle(repeatCommand1, s.err)
 
-
 	logCommand := LogCommand{
 		command: s.command,
 		err:     s.err,
