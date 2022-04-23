@@ -29,6 +29,7 @@ func NewListener(bufferLength int) *Listener {
 		ctx:          ctx,
 		cancel:       cancel,
 		commandsChan: commandsChan,
+		aliveChan:    aliveChan,
 		queue:        queue,
 		errorHandler: noOpErrorHandler,
 	}
@@ -47,6 +48,9 @@ func (l *Listener) SetErrorHandler(errorHandler core.ErrorHandler) {
 func (l *Listener) run() {
 	for {
 		select {
+		case <-l.ctx.Done():
+			// hard stop
+			return
 		case command, ok := <-l.commandsChan:
 			if !ok {
 				// soft stop
@@ -57,9 +61,11 @@ func (l *Listener) run() {
 			if err != nil {
 				l.errorHandler(command, err)
 			}
-		case <-l.ctx.Done():
-			// hard stop
-			return
+
+			if l.ctx.Err() != nil {
+				// hard stop
+				return
+			}
 		}
 	}
 }
