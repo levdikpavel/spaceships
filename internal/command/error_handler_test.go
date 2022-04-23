@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+
+	"modules/internal/mock"
 )
 
 func TestErrorHandler(t *testing.T) {
@@ -14,15 +16,15 @@ func TestErrorHandler(t *testing.T) {
 type ErrorHandlerSuite struct {
 	suite.Suite
 
-	queue   QueueMock
+	queue   mock.QueueMock
 	err     error
-	command *CommandMock
+	command *mock.CommandMock
 }
 
 func (s *ErrorHandlerSuite) SetupTest() {
-	s.queue = QueueMock{}
+	s.queue = mock.QueueMock{}
 	s.err = fmt.Errorf("some error")
-	s.command = &CommandMock{}
+	s.command = &mock.CommandMock{}
 }
 
 func (s *ErrorHandlerSuite) TestLog() {
@@ -107,7 +109,6 @@ func (s *ErrorHandlerSuite) TestRepeatTriple() {
 	repeatCommand2.attempt = 2
 	s.queue.On("Put", repeatCommand2).Return()
 	h.Handle(repeatCommand1, s.err)
-
 
 	logCommand := LogCommand{
 		command: s.command,

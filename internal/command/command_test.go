@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"modules/internal/mock"
 	"modules/internal/vector"
 )
 
 var (
-	errSomeError = fmt.Errorf("some error")	
+	errSomeError = fmt.Errorf("some error")
 )
 
 func TestCommand(t *testing.T) {
@@ -20,11 +21,11 @@ func TestCommand(t *testing.T) {
 type CommandSuite struct {
 	suite.Suite
 
-	command CommandMock
+	command mock.CommandMock
 }
 
 func (s *CommandSuite) TestLog() {
-	loggerMock := LoggerMock{}
+	loggerMock := mock.LoggerMock{}
 	command := LogCommand{
 		command: &s.command,
 		err:     errSomeError,
@@ -33,7 +34,7 @@ func (s *CommandSuite) TestLog() {
 
 	err := command.Execute()
 	s.Require().NoError(err)
-	s.Require().Equal("CommandMock got error: 'some error'", loggerMock.message)
+	s.Require().Equal("CommandMock got error: 'some error'", loggerMock.Message)
 }
 
 func (s *CommandSuite) TestRepeat() {
@@ -48,7 +49,6 @@ func (s *CommandSuite) TestRepeat() {
 	s.command.AssertExpectations(s.T())
 }
 
-
 func TestMove(t *testing.T) {
 	suite.Run(t, new(MoveTestSuite))
 }
@@ -56,12 +56,12 @@ func TestMove(t *testing.T) {
 type MoveTestSuite struct {
 	suite.Suite
 
-	mock      MovableMock
+	mock      mock.MovableMock
 	nilVector vector.Vector
 }
 
 func (s *MoveTestSuite) SetupTest() {
-	s.mock = MovableMock{}
+	s.mock = mock.MovableMock{}
 }
 
 func (s *MoveTestSuite) TearDownTest() {
@@ -115,11 +115,11 @@ func TestRotate(t *testing.T) {
 type RotateTestSuite struct {
 	suite.Suite
 
-	mock RotatableMock
+	mock mock.RotatableMock
 }
 
 func (s *RotateTestSuite) SetupTest() {
-	s.mock = RotatableMock{}
+	s.mock = mock.RotatableMock{}
 }
 
 func (s *RotateTestSuite) TearDownTest() {
@@ -177,11 +177,11 @@ func TestCheckFuel(t *testing.T) {
 type CheckFuelTestSuite struct {
 	suite.Suite
 
-	mock FuelBurnableMock
+	mock mock.FuelBurnableMock
 }
 
 func (s *CheckFuelTestSuite) SetupTest() {
-	s.mock = FuelBurnableMock{}
+	s.mock = mock.FuelBurnableMock{}
 }
 
 func (s *CheckFuelTestSuite) TearDownTest() {
@@ -229,11 +229,11 @@ func TestBurnFuel(t *testing.T) {
 type BurnFuelTestSuite struct {
 	suite.Suite
 
-	mock FuelBurnableMock
+	mock mock.FuelBurnableMock
 }
 
 func (s *BurnFuelTestSuite) SetupTest() {
-	s.mock = FuelBurnableMock{}
+	s.mock = mock.FuelBurnableMock{}
 }
 
 func (s *BurnFuelTestSuite) TearDownTest() {
@@ -292,13 +292,13 @@ func TestMacroCommand(t *testing.T) {
 type MacroCommandTestSuite struct {
 	suite.Suite
 
-	mock1 CommandMock
-	mock2 CommandMock
+	mock1 mock.CommandMock
+	mock2 mock.CommandMock
 }
 
 func (s *MacroCommandTestSuite) SetupTest() {
-	s.mock1 = CommandMock{}
-	s.mock2 = CommandMock{}
+	s.mock1 = mock.CommandMock{}
+	s.mock2 = mock.CommandMock{}
 }
 
 func (s *MacroCommandTestSuite) TearDownTest() {
@@ -338,7 +338,7 @@ func TestMoveWithFuel(t *testing.T) {
 type MoveWithFuelTestSuite struct {
 	suite.Suite
 
-	mock        MovableWithFuelMock
+	mock        mock.MovableWithFuelMock
 	position    vector.Vector
 	velocity    vector.Vector
 	positionNew vector.Vector
@@ -346,7 +346,7 @@ type MoveWithFuelTestSuite struct {
 }
 
 func (s *MoveWithFuelTestSuite) SetupTest() {
-	s.mock = MovableWithFuelMock{}
+	s.mock = mock.MovableWithFuelMock{}
 	s.position = vector.New([]int{12, 5})
 	s.velocity = vector.New([]int{-7, 3})
 	s.positionNew = vector.New([]int{5, 8})
@@ -408,7 +408,7 @@ func TestTurnVelocity(t *testing.T) {
 type TurnVelocityTestSuite struct {
 	suite.Suite
 
-	mock             RotatableMovableMock
+	mock             mock.RotatableMovableMock
 	velocity         vector.Vector
 	velocity3D       vector.Vector
 	velocityNew      vector.Vector
@@ -419,7 +419,7 @@ type TurnVelocityTestSuite struct {
 }
 
 func (s *TurnVelocityTestSuite) SetupTest() {
-	s.mock = RotatableMovableMock{}
+	s.mock = mock.RotatableMovableMock{}
 	s.velocity = vector.New([]int{100, 10})
 	s.velocity3D = vector.New([]int{100, 10, 20})
 	s.direction = 6
@@ -489,7 +489,7 @@ func TestRotateWithVelocity(t *testing.T) {
 type RotateWithVelocityTestSuite struct {
 	suite.Suite
 
-	mock             RotatableMovableMock
+	mock             mock.RotatableMovableMock
 	velocity         vector.Vector
 	velocityNew      vector.Vector
 	direction        int
@@ -499,7 +499,7 @@ type RotateWithVelocityTestSuite struct {
 }
 
 func (s *RotateWithVelocityTestSuite) SetupTest() {
-	s.mock = RotatableMovableMock{}
+	s.mock = mock.RotatableMovableMock{}
 	s.velocity = vector.New([]int{100, 10})
 	s.direction = 6
 	s.angularVelocity = 4

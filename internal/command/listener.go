@@ -1,8 +1,10 @@
 package command
 
+import "modules/internal/core"
+
 type Listener struct {
-	queue        Queue
-	errorHandler ErrorHandler
+	queue        core.Queue
+	errorHandler core.ErrorHandler
 }
 
 func (l *Listener) listen() {
