@@ -2,7 +2,10 @@ module modules
 
 go 1.17
 
-require github.com/stretchr/testify v1.7.1
+require (
+	github.com/stretchr/testify v1.7.1
+	github.com/timandy/routine v1.0.5
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.0 // indirect
