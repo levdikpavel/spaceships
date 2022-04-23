@@ -3,14 +3,15 @@ package command
 import "modules/internal/core"
 
 type LogErrorHandler struct {
-	queue core.Queue
+	queue   core.Queue
+	logFunc LogFunc
 }
 
 func (h *LogErrorHandler) Handle(command core.Command, err error) {
 	logCommand := LogCommand{
 		command: command,
 		err:     err,
-		logFunc: StdLogFunc,
+		logFunc: h.logFunc,
 	}
 	h.queue.Put(logCommand)
 }
