@@ -10,6 +10,7 @@ func (h *LogErrorHandler) Handle(command core.Command, err error) {
 	logCommand := LogCommand{
 		command: command,
 		err:     err,
+		logFunc: StdLogFunc,
 	}
 	h.queue.Put(logCommand)
 }
