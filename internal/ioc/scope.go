@@ -5,8 +5,6 @@ import (
 	"sync"
 
 	"github.com/timandy/routine"
-
-	"modules/internal/core"
 )
 
 type scope struct {
@@ -14,7 +12,7 @@ type scope struct {
 	parent          *scope
 }
 
-func (s *scope) resolve(key string, params ...interface{}) core.Command {
+func (s *scope) resolve(key string, params ...interface{}) interface{} {
 	if s == nil {
 		return nil
 	}
@@ -24,14 +22,14 @@ func (s *scope) resolve(key string, params ...interface{}) core.Command {
 		return s.parent.resolve(key, params...)
 	}
 
-	create := val.(func (params ...interface{}) core.Command)
+	create := val.(func (params ...interface{}) interface{})
 	return create(params...)
 }
 
 type registerCommand struct {
 	scope  *scope
 	name   string
-	create func (params ...interface{}) core.Command
+	create func (params ...interface{}) interface{}
 }
 
 func (c *registerCommand) Execute() error {
@@ -59,9 +57,9 @@ func createScope(parent *scope) *scope {
 		parent:          parent,
 	}
 
-	create := func(params ...interface{}) core.Command {
+	create := func(params ...interface{}) interface{} {
 		name := params[0].(string)
-		create := params[1].(func(params ...interface{}) core.Command)
+		create := params[1].(func(params ...interface{}) interface{})
 		return &registerCommand{
 			scope:  result,
 			name:   name,
@@ -107,7 +105,7 @@ func getCurrentScope(gid int64) *scope {
 	return scopes.defaultScope
 }
 
-func Resolve(key string, params ...interface{}) core.Command {
+func Resolve(key string, params ...interface{}) interface{} {
 	gid := routine.Goid()
 
 	switch key {

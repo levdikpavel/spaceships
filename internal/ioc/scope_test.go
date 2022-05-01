@@ -34,12 +34,12 @@ func (s *ScopeTestSuite) TestRegister() {
 	})
 
 	err := Resolve("IoC.Register", "my_command",
-		func(params ...interface{}) core.Command {
+		func(params ...interface{}) interface{} {
 			return &commandMock
-		}).Execute()
+		}).(core.Command).Execute()
 	s.Require().NoError(err)
 
-	err = Resolve("my_command").Execute()
+	err = Resolve("my_command").(core.Command).Execute()
 	s.Require().ErrorIs(err, s.err)
 	s.Require().Equal(20, a)
 
@@ -47,19 +47,19 @@ func (s *ScopeTestSuite) TestRegister() {
 }
 
 func (s *ScopeTestSuite) TestScopes() {
-	err := Resolve("Scopes.New", "scope1").Execute()
+	err := Resolve("Scopes.New", "scope1").(core.Command).Execute()
 	s.Require().NoError(err)
 
 	a := 10
 	err = Resolve("IoC.Register", "my_command",
-		func(params ...interface{}) core.Command {
+		func(params ...interface{}) interface{} {
 			commandMock := mock.CommandMock{}
 			commandMock.On("Execute").Return(func() error {
 				a = 20
 				return nil
 			})
 			return &commandMock
-		}).Execute()
+		}).(core.Command).Execute()
 	s.Require().NoError(err)
 
 	wg := sync.WaitGroup{}
@@ -67,38 +67,38 @@ func (s *ScopeTestSuite) TestScopes() {
 	go func() {
 		defer wg.Done()
 
-		err := Resolve("Scopes.New", "scope2").Execute()
+		err := Resolve("Scopes.New", "scope2").(core.Command).Execute()
 		s.Require().NoError(err)
 
 		err = Resolve("IoC.Register", "my_command",
-			func(params ...interface{}) core.Command {
+			func(params ...interface{}) interface{} {
 				commandMock := mock.CommandMock{}
 				commandMock.On("Execute").Return(func() error {
 					a = 30
 					return nil
 				})
 				return &commandMock
-			}).Execute()
+			}).(core.Command).Execute()
 		s.Require().NoError(err)
 
-		err = Resolve("Scopes.Current", "scope1").Execute()
+		err = Resolve("Scopes.Current", "scope1").(core.Command).Execute()
 		s.Require().NoError(err)
 
-		err = Resolve("my_command").Execute()
+		err = Resolve("my_command").(core.Command).Execute()
 		s.Require().NoError(err)
 	}()
 
 	wg.Wait()
 	s.Require().Equal(20, a)
 
-	err = Resolve("my_command").Execute()
+	err = Resolve("my_command").(core.Command).Execute()
 	s.Require().NoError(err)
 	s.Require().Equal(20, a)
 
-	err = Resolve("Scopes.Current", "scope2").Execute()
+	err = Resolve("Scopes.Current", "scope2").(core.Command).Execute()
 	s.Require().NoError(err)
 
-	err = Resolve("my_command").Execute()
+	err = Resolve("my_command").(core.Command).Execute()
 	s.Require().NoError(err)
 	s.Require().Equal(30, a)
 }
