@@ -45,3 +45,8 @@ type MovableRotatable interface {
 	Rotatable
 	Accelerating
 }
+
+type UObject interface {
+	GetValue(string) (interface{}, error)
+	SetValue(string, interface{}) error
+}
