@@ -6,6 +6,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io"
 	"log"
 	"os"
 	"sort"
@@ -29,26 +30,40 @@ func main() {
 	flag.Parse()
 	splittedInterfaces := strings.Split(interfaces, ",")
 
-	processor := newAdapterProcessor()
-	data := processor.parseFile(inputFile, splittedInterfaces)
-	dumpOutput(data, outputFile)
+	output, err := os.Create(outputFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = generateAdapters(inputFile, output, splittedInterfaces)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func dumpOutput(data templateStruct, outputFile string) {
-	f, err := os.Create(outputFile)
+func generateAdapters(inputFile string, output io.Writer, interfaces []string) error {
+	processor := newAdapterProcessor()
+	data, err := processor.parseFile(inputFile, interfaces)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
+	err = dumpOutput(data, output)
+	return err
+}
+
+func dumpOutput(data templateStruct, output io.Writer) error {
 	tmpl, err := template.New("test").Parse(outputTemplate)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	err = tmpl.Execute(f, data)
+	err = tmpl.Execute(output, data)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }
 
 type adaptersProcessor struct {
@@ -69,11 +84,11 @@ func newAdapterProcessor() *adaptersProcessor {
 	}
 }
 
-func (a *adaptersProcessor) parseFile(path string, interfaces []string) templateStruct {
+func (a *adaptersProcessor) parseFile(path string, interfaces []string) (result templateStruct, err error) {
 	fileSet := token.NewFileSet()
 	node, err := parser.ParseFile(fileSet, path, nil, parser.ParseComments)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
 	interfacesMap := make(map[string]struct{})
@@ -98,7 +113,7 @@ func (a *adaptersProcessor) parseFile(path string, interfaces []string) template
 	return templateStruct{
 		Imports:    imports,
 		Interfaces: parsedInterfaces,
-	}
+	}, nil
 }
 
 func (a *adaptersProcessor) parseNode(
@@ -248,7 +263,6 @@ const (
 import ({{range .Imports}}
 	{{.}}{{end}}
 )
-
 {{range $interface := .Interfaces}}
 type {{.Name}}Adapter struct{
    obj core.UObject

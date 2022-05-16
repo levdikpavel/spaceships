@@ -6,7 +6,6 @@ import (
 	"modules/internal/vector"
 )
 
-
 type MovableAdapter struct{
    obj core.UObject
 }
@@ -66,7 +65,7 @@ func init() {
 			case "core.Rotatable":
 				return NewRotatableAdapter(params[1].(core.UObject))
 			default:
-				panic("unknown adapter type: " + adapterType)
+				panic("unknown adapter type" + adapterType)
 			}
 	}).(core.Command).Execute()
 }

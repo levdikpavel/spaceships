@@ -125,3 +125,17 @@ type RotatableMovableMock struct {
 	MovableMock
 	AcceleratingMock
 }
+
+type UObjectMock struct {
+	mock.Mock
+}
+
+func (o *UObjectMock) GetValue(valueName string) (interface{}, error) {
+	args := o.Called(valueName)
+	return args.Get(0), args.Error(1)
+}
+
+func (o *UObjectMock) SetValue(valueName string, newValue interface{}) error {
+	args := o.Called(valueName, newValue)
+	return args.Error(0)
+}
